@@ -11,7 +11,7 @@ const Header = () => {
         <div className="row">
           <div className="col-md-3 col-xs-8 slideInLeft">
             <div className="logo">
-              <span className="point">Danny</span>
+              <span className="point">Patrick</span>
             </div>
           </div>
           <div className="col-md-9 hidden-sm hidden-xs slideInRight">

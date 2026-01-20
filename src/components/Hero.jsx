@@ -23,7 +23,7 @@ const Hero = () => {
             <div className="about-me wow slideInLeft">
               <div className="about-me-title">
                 <h1>
-                  <span className="point">I am Danny Falcon</span>
+                  <span className="point">I am Patrick Francis</span>
                 </h1>
               </div>
               <div className="about-me-text">
