@@ -30,7 +30,7 @@ const Hero = () => {
                 <div className="opacity-box">
                   <p>
                     I am a Web Developer located in Hartford, Connecticut. I
-                    currently work as a part time Remote senior Web Developer for
+                    currently work as a part time Remote Senior Web Developer for
                     Coolor, located in Las Vegas. I am looking to take on more
                     work and to increase my skills as a Web Developer.
                   </p>
