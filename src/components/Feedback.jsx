@@ -1,7 +1,7 @@
 import React from 'react';
 import Zigzag from './Zigzag';
 import { useQuery } from '@tanstack/react-query';
-import { getFeedback } from '../context/feedbackApi';
+import { getFeedback } from '../context/feedBackApi';
 
 /**
  * Feedback Component
