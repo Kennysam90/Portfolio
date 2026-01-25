@@ -1,51 +1,72 @@
 import React, { useState } from 'react';
-import { portfolioData, portfolioFilters } from './portfolioData';
+import { useQuery } from '@tanstack/react-query';
+import { getPortfolios } from '../context/portfolioApi';
+
+const portfolioFilters = [
+  { id: 'all', label: 'All projects' },
+  { id: 'WEB SITE', label: 'Web sites' },
+  { id: 'UI/UX DESIGN', label: 'UI/UX design' },
+  { id: 'FRONTEND', label: 'Frontend' }
+];
 
 /**
  * Portfolio - Portfolio section component
- * React component with state-based filtering and modal handling
  */
 const Portfolio = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedProject, setSelectedProject] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  
+
+  // ✅ Fetching data from API
+  const {
+    data: portfolioData = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['portfolios'],
+    queryFn: getPortfolios,
+  });
+
   const handleFilterClick = (filterId) => {
     setActiveFilter(filterId);
   };
-  
+
   const handleProjectClick = (project) => {
     setSelectedProject(project);
     setCurrentImageIndex(0);
   };
-  
+
   const handleCloseModal = () => {
     setSelectedProject(null);
     setCurrentImageIndex(0);
   };
-  
+
   const handlePrevImage = (e) => {
     e.stopPropagation();
-    if (selectedProject && selectedProject.images.length > 1) {
+    if (selectedProject && selectedProject.images?.length > 1) {
       setCurrentImageIndex((prev) => 
         prev === 0 ? selectedProject.images.length - 1 : prev - 1
       );
     }
   };
-  
+
   const handleNextImage = (e) => {
     e.stopPropagation();
-    if (selectedProject && selectedProject.images.length > 1) {
+    if (selectedProject && selectedProject.images?.length > 1) {
       setCurrentImageIndex((prev) => 
         prev === selectedProject.images.length - 1 ? 0 : prev + 1
       );
     }
   };
-  
+
+  // ✅ Filter logic using "categorys" from your JSON
   const filteredProjects = activeFilter === 'all' 
     ? portfolioData 
-    : portfolioData.filter(item => item.category === activeFilter);
-  
+    : portfolioData.filter(item => item.categorys === activeFilter);
+
+  if (isLoading) return null; // Or a simple spinner
+  if (isError) return null;
+
   return (
     <section id="portfolio" className="section section-small-padding">
       <div className="container">
@@ -83,7 +104,7 @@ const Portfolio = () => {
                 {filteredProjects.map(project => (
                   <div 
                     key={project.id}
-                    className={`col-md-3 col-sm-6 col-xs-6 mix ${project.category} wow flipInX`}
+                    className={`col-md-3 col-sm-6 col-xs-6 mix ${project.categorys} wow flipInX`}
                     style={{ 
                       display: 'flex',
                       marginBottom: '30px'
@@ -105,7 +126,7 @@ const Portfolio = () => {
                         borderRadius: '2px'
                       }}>
                         <img
-                          src={project.images[0]}
+                          src={project.images?.[0]?.image}
                           alt={project.title}
                           style={{ 
                             width: '100%',
@@ -115,7 +136,7 @@ const Portfolio = () => {
                         />
                       </div>
                       <div className="portfolio-name">
-                        <span>{project.title}</span>
+                        <span>{project.title} "{project.name}"</span>
                       </div>
                       <div className="portfolio-date">
                         <span>{project.date}</span>
@@ -182,21 +203,19 @@ const Portfolio = () => {
               </button>
               <div className="modal-title">
                 <h1>
-                  <span className="point">{selectedProject.title}</span>
+                  <span className="point">{selectedProject.title} "{selectedProject.name}"</span>
                 </h1>
               </div>
               <div className="modal-description" style={{ marginTop: '20px' }}>
                 <p>
-                  {selectedProject.title} is an amazing project that showcases 
-                  modern web development practices. This project demonstrates 
-                  clean code, responsive design, and excellent user experience.
+                  {selectedProject.discription}
                 </p>
               </div>
               <div className="about-me-info" style={{ marginTop: '20px', display:"flex", justifyContent:"space-between" }}>
                 <div>
                 <p style={{ marginBottom: '10px' }}>
                   <span className="span-title" style={{ fontWeight: 'bold', marginRight: '10px' }}>Stack:</span>
-                  <span>HTML, CSS, Bootstrap, JavaScript, React</span>
+                  <span>{selectedProject.stackTool}</span>
                 </p>
                 <p>
                   <span className="span-title" style={{ fontWeight: 'bold', marginRight: '10px' }}>Date:</span>
@@ -205,8 +224,8 @@ const Portfolio = () => {
                 </div>
                  <div>
                 <p style={{ marginBottom: '10px' }}>
-                  <span className="span-title" style={{ fontWeight: 'bold', marginRight: '10px' }}>Stack:</span>
-                  <span>HTML, CSS, Bootstrap, JavaScript, React</span>
+                  <span className="span-title" style={{ fontWeight: 'bold', marginRight: '10px' }}>Code:</span>
+                  <span>{selectedProject.stackTool}</span>
                 </p>
                 <p>
                   <span className="span-title" style={{ fontWeight: 'bold', marginRight: '10px' }}>Date:</span>
@@ -224,7 +243,7 @@ const Portfolio = () => {
                   overflow: 'hidden'
                 }}>
                   <img
-                    src={selectedProject.images[currentImageIndex]}
+                    src={selectedProject.images[currentImageIndex]?.image}
                     alt={`${selectedProject.title} - Image ${currentImageIndex + 1}`}
                     style={{ 
                       maxWidth: '100%', 
@@ -236,7 +255,7 @@ const Portfolio = () => {
                   />
                   
                   {/* Navigation Arrows */}
-                  {selectedProject.images.length > 1 && (
+                  {selectedProject.images?.length > 1 && (
                     <>
                       <button
                         onClick={handlePrevImage}
@@ -347,4 +366,3 @@ const Portfolio = () => {
 };
 
 export default Portfolio;
-

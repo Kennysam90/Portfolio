@@ -1,125 +1,124 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-/**
- * ContactModal Component
- * Displays a modal popup containing a contact form
- * used to send messages to the site owner.
- */
+const API_BASE = '/api/contact/';
+
 const ContactModal = () => {
+  const queryClient = useQueryClient();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: '',
+  });
+
+  const mutation = useMutation({
+    mutationFn: async (data) => await axios.post(API_BASE, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['contacts']); // optional
+      setFormData({ name: '', email: '', message: '' });
+      alert('Message sent successfully!');
+    },
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    mutation.mutate(formData);
+  };
+
   return (
-    <>
-      {/* Contact modal wrapper */}
-      <div
-        className="modal fade"
-        id="contact-modal"
-        tabIndex={-1}
-        role="dialog"
-        aria-labelledby="portfolio-modal"
-      >
-        {/* Centered modal dialog */}
-        <div className="modal-dialog modal-center" role="document">
-          <div className="modal-content">
-            <div className="modal-body">
-
-              {/* Modal title */}
-              <div className="modal-title">
-                <h1>
-                  <span className="point">Let's work together</span>
-                </h1>
-              </div>
-
-              {/* Modal description text */}
-              <div className="modal-description">
-                <p>
-                  Are you working on something great? I would love to help make it
-                  happen! Drop me a letter and start your project right now! Just do
-                  it.
-                </p>
-              </div>
-
-              {/* Contact form inside modal */}
-              <div className="modal-form">
-                <form action="#" className="js-modal-form">
-                  <div className="row form-wrapper">
-
-                    {/* Name and Email fields */}
-                    <div className="col-lg-5 col-md-5">
-                      <div className="form-group">
-                        {/* Name input */}
-                        <input
-                          className="form-field js-field-name"
-                          type="text"
-                          placeholder="Name"
-                          required=""
-                        />
-                        {/* Validation indicator */}
-                        <span className="form-validation" />
-                        {/* Error icon */}
-                        <span className="form-invalid-icon">
-                          <i className="mdi mdi-close" aria-hidden="true" />
-                        </span>
-                      </div>
-
-                      <div className="form-group">
-                        {/* Email input */}
-                        <input
-                          className="form-field js-field-email"
-                          type="email"
-                          placeholder="E-mail"
-                          required=""
-                        />
-                        {/* Validation indicator */}
-                        <span className="form-validation" />
-                        {/* Error icon */}
-                        <span className="form-invalid-icon">
-                          <i className="mdi mdi-close" aria-hidden="true" />
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Message textarea */}
-                    <div className="col-lg-7 col-md-7">
-                      <div className="form-group">
-                        <textarea
-                          className="form-field js-field-message"
-                          placeholder="Message"
-                          required=""
-                          defaultValue={""}
-                        />
-                        {/* Validation indicator */}
-                        <span className="form-validation" />
-                      </div>
-                    </div>
-
-                    {/* Submit and cancel buttons */}
-                    <div className="col-md-12">
-                      <div className="submit-holder">
-                        {/* Submit message button */}
-                        <input
-                          className="site-btn js-submit-contact"
-                          type="submit"
-                          defaultValue="Send message"
-                        />
-                        {/* Close modal button */}
-                        <a
-                          href="#"
-                          className="site-btn gray-btn"
-                          data-dismiss="modal"
-                        >
-                          Back to cv
-                        </a>
-                      </div>
-                    </div>
-
-                  </div>
-                </form>
-              </div>
-
+    <div
+      className="modal fade"
+      id="contact-modal"
+      tabIndex={-1}
+      role="dialog"
+      aria-labelledby="portfolio-modal"
+    >
+      <div className="modal-dialog modal-center" role="document">
+        <div className="modal-content">
+          <div className="modal-body">
+            <div className="modal-title">
+              <h1><span className="point">Let's work together</span></h1>
             </div>
+            <div className="modal-description">
+              <p>
+                Are you working on something great? I would love to help make it
+                happen! Drop me a letter and start your project right now! Just do it.
+              </p>
+            </div>
+
+            <div className="modal-form">
+              <form className="js-modal-form" onSubmit={handleSubmit}>
+                <div className="row form-wrapper">
+
+                  <div className="col-lg-5 col-md-5">
+                    <div className="form-group">
+                      <input
+                        className="form-field js-field-name"
+                        type="text"
+                        name="name"
+                        placeholder="Name"
+                        required
+                        value={formData.name}
+                        onChange={handleChange}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <input
+                        className="form-field js-field-email"
+                        type="email"
+                        name="email"
+                        placeholder="E-mail"
+                        required
+                        value={formData.email}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col-lg-7 col-md-7">
+                    <div className="form-group">
+                      <textarea
+                        className="form-field js-field-message"
+                        name="message"
+                        placeholder="Message"
+                        required
+                        value={formData.message}
+                        onChange={handleChange}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col-md-12">
+                    <div className="submit-holder">
+                      <input
+                        className="site-btn js-submit-contact"
+                        type="submit"
+                        value="Send message"
+                      />
+                      <a
+                        href="#"
+                        className="site-btn gray-btn"
+                        data-dismiss="modal"
+                      >
+                        Back to cv
+                      </a>
+                    </div>
+                  </div>
+
+                </div>
+              </form>
+            </div>
+
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

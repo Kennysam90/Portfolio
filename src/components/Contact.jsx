@@ -1,30 +1,57 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Zigzag from './Zigzag';
+import axios from 'axios';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+const API_BASE = '/api/contact/';
 
 /**
  * Contact Component
- * Renders the contact section with a sidebar description
- * and a contact form for user messages.
+ * Renders the contact section with sidebar and form
  */
 const Contact = () => {
+  const queryClient = useQueryClient();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: '',
+  });
+
+  // Fetch all contact messages (optional, if you want to display them)
+  const { data: messages = [] } = useQuery({
+    queryKey: ['contacts'],
+    queryFn: async () => (await axios.get(API_BASE)).data,
+  });
+
+  // Mutation to send a new message
+  const mutation = useMutation({
+    mutationFn: async (data) => await axios.post(API_BASE, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['contacts']);
+      setFormData({ name: '', email: '', message: '' });
+      alert('Message sent successfully!');
+    },
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    mutation.mutate(formData);
+  };
+
   return (
-    // Main contact section wrapper
     <section id="contact" className="section">
       <div className="container">
         <div className="row wave-bg">
-          
-          {/* Decorative zigzag background component */}
           <Zigzag />
 
-          {/* Left sidebar content */}
+          {/* Left sidebar */}
           <div className="col-md-4 wow slideInLeft">
             <div className="section-sidebar">
-              <h2>
-                {/* Section title */}
-                <span className="point">Contact</span>
-              </h2>
-
-              {/* Description text */}
+              <h2><span className="point">Contact</span></h2>
               <div className="opacity-box">
                 <p>
                   Are you working on something great? I would love to help make it
@@ -36,65 +63,48 @@ const Contact = () => {
           </div>
 
           {/* Contact form */}
-          <form action="#" className="wow slideInRight js-footer-form">
+          <form className="wow slideInRight js-footer-form" onSubmit={handleSubmit}>
             <div className="form-wrapper">
 
-              {/* Name and Email fields */}
               <div className="col-md-3">
                 <div className="form-group">
-                  {/* Name input */}
                   <input
                     className="form-field js-field-name"
                     type="text"
+                    name="name"
                     placeholder="Name"
-                    required=""
+                    required
+                    value={formData.name}
+                    onChange={handleChange}
                   />
-                  {/* Validation indicator */}
-                  <span className="form-validation" />
-                  {/* Error icon */}
-                  <span className="form-invalid-icon">
-                    <i className="mdi mdi-close" aria-hidden="true" />
-                  </span>
                 </div>
-
                 <div className="form-group">
-                  {/* Email input */}
                   <input
                     className="form-field js-field-email"
                     type="email"
+                    name="email"
                     placeholder="E-mail"
-                    required=""
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
                   />
-                  {/* Validation indicator */}
-                  <span className="form-validation" />
-                  {/* Error icon */}
-                  <span className="form-invalid-icon">
-                    <i className="mdi mdi-close" aria-hidden="true" />
-                  </span>
                 </div>
               </div>
 
-              {/* Message field and submit button */}
               <div className="col-md-5">
                 <div className="form-group">
-                  {/* Message textarea */}
                   <textarea
                     className="form-field js-field-message"
+                    name="message"
                     placeholder="Message"
-                    required=""
-                    defaultValue={""}
+                    required
+                    value={formData.message}
+                    onChange={handleChange}
                   />
-                  {/* Validation indicator */}
-                  <span className="form-validation" />
                 </div>
 
-                {/* Submit button */}
                 <div className="submit-holder">
-                  <input
-                    className="site-btn"
-                    type="submit"
-                    defaultValue="Send message"
-                  />
+                  <input className="site-btn" type="submit" value="Send message" />
                 </div>
               </div>
 
