@@ -5,7 +5,6 @@ import { getFeedback } from '../context/feedBackApi';
 
 /**
  * Feedback Component
- * Displays client reviews / testimonials
  */
 const Feedback = () => {
   const {
